@@ -892,10 +892,13 @@ function loadTeachingBuildingModel() {
     const loader = new window.THREE.GLTFLoader();
     loader.setDRACOLoader(dracoLoader); // 关联DRACOLoader
     
-    // 获取模型加载进度元素
+    // 获取模型加载进度元素并显示
     const modelLoading = document.getElementById('modelLoading');
     const modelProgressFill = document.getElementById('modelProgressFill');
     const modelProgressText = document.getElementById('modelProgressText');
+    
+    // 显示模型加载进度动画
+    modelLoading.style.display = 'flex';
     
     // 总加载进度
     let totalProgress = 0;

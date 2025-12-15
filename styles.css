@@ -780,6 +780,7 @@ body {
     padding: 0;
     /* 将背景颜色设为透明 */
     background: transparent !important;
+    position: relative;
 }
 
 /* 确保container始终填充剩余空间 */
@@ -830,6 +831,9 @@ body {
     padding: 0 !important;
     /* 添加transform: translateZ(0)确保硬件加速 */
     transform: translateZ(0);
+    /* 确保在各种屏幕尺寸下都能正确显示 */
+    min-height: 300px;
+    min-width: 300px;
 }
 
 /* 直接设置canvas元素样式，确保它铺满整个容器 */

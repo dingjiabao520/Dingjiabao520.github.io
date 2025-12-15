@@ -152,13 +152,20 @@ function initThreeJS() {
     // 添加轨道控制，移动端优化灵敏度
     controls = new window.THREE.OrbitControls(camera, renderer.domElement);
     if (isMobile) {
-        // 移动端降低旋转和缩放灵敏度
-        controls.rotateSpeed = 0.8;
-        controls.zoomSpeed = 0.5;
-        controls.panSpeed = 0.5;
-        // 移动端启用触摸控制
+        // 优化移动端触摸灵敏度
+        controls.rotateSpeed = 0.6;
+        controls.zoomSpeed = 0.3;
+        controls.panSpeed = 0.4;
+        // 移动端启用触摸控制和阻尼效果
         controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
+        controls.dampingFactor = 0.15;
+        // 优化移动端触摸体验
+        controls.minDistance = 20;
+        controls.maxDistance = 150;
+    } else {
+        // 桌面端也启用阻尼效果，提供更平滑的体验
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
     }
     
     // 添加灯光
@@ -1681,13 +1688,38 @@ function onWindowResize() {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     
-    // 更新渲染器尺寸，使用setPixelRatio确保高清显示
-    const pixelRatio = window.devicePixelRatio || 1;
+    // 更新渲染器尺寸，使用setPixelRatio确保高清显示，限制最大像素比以提高性能
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.setSize(width, height);
     renderer.setPixelRatio(pixelRatio);
     
     // 直接设置canvas元素的样式尺寸为100%，确保它填充整个容器
     const canvas = renderer.domElement;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    
+    // 确保canvas容器尺寸正确
+    const canvasContainer = document.getElementById('canvas-container');
+    canvasContainer.style.width = '100%';
+    canvasContainer.style.height = '100%';
+    
+    // 处理极端宽高比，确保模型始终可见
+    if (width / height > 2.5 || height / width > 2.5) {
+        // 极端宽高比时调整相机位置
+        const isWideScreen = width > height;
+        const factor = isWideScreen ? height / width : width / height;
+        
+        // 根据宽高比调整相机距离
+        const currentDistance = camera.position.distanceTo(controls.target);
+        const targetDistance = Math.min(80, Math.max(30, currentDistance * (0.8 + factor * 0.2)));
+        
+        // 平滑调整相机位置
+        const direction = new THREE.Vector3()
+            .subVectors(camera.position, controls.target)
+            .normalize()
+            .multiplyScalar(targetDistance);
+        camera.position.copy(controls.target).add(direction);
+    }
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     

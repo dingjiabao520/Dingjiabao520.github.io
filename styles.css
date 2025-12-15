@@ -3053,6 +3053,91 @@ body {
     .hud-metric-label {
         font-size: 0.6rem;
     }
+}
+
+/* 横屏模式适配 */
+@media screen and (orientation: landscape) and (max-width: 1024px) {
+    /* 调整顶部标题栏 */
+    .top-header {
+        height: 60px;
+        padding: 0 20px;
+    }
+    
+    .title-main {
+        font-size: 1.2rem;
+    }
+    
+    /* 调整HUD面板 */
+    .hud-left, .hud-right {
+        top: 60px;
+        width: 30vw;
+        max-width: 200px;
+        min-width: 120px;
+    }
+    
+    .hud-card {
+        padding: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .hud-title {
+        font-size: 0.7rem;
+    }
+    
+    .hud-metric-item {
+        padding: 4px;
+    }
+    
+    .hud-metric-value {
+        font-size: 0.8rem;
+    }
+    
+    .hud-metric-label {
+        font-size: 0.55rem;
+    }
+    
+    /* 调整模型控制按钮 */
+    .model-control-buttons {
+        bottom: 10px;
+        left: 10px;
+        gap: 8px;
+    }
+    
+    .control-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+    
+    /* 确保canvas容器占据主要空间 */
+    #canvas-container {
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100% !important;
+        height: calc(100vh - 60px) !important;
+    }
+    
+    /* 调整模型加载动画 */
+    .model-loading-container {
+        width: 300px;
+        padding: 20px;
+    }
+    
+    .model-loading-title {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .model-progress-bar {
+        height: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .model-progress-text {
+        font-size: 1.1rem;
+    }
     
     /* 调整风向指示器大小 */
     .wind-direction-indicator {

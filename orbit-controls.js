@@ -117,6 +117,114 @@ THREE.OrbitControls = function(camera, domElement) {
         this.state = -1;
     };
     
+    // 触摸事件相关变量
+    this.touchStartDistance = 0;
+    this.touchStartAngle = 0;
+    this.touchStartPan = new THREE.Vector2();
+    this.touchCurrentPan = new THREE.Vector2();
+    this.isMultiTouch = false;
+    
+    // 计算两点之间的距离
+    const getDistance = (touch1, touch2) => {
+        const dx = touch2.clientX - touch1.clientX;
+        const dy = touch2.clientY - touch1.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+    
+    // 计算两点之间的角度
+    const getAngle = (touch1, touch2) => {
+        const dx = touch2.clientX - touch1.clientX;
+        const dy = touch2.clientY - touch1.clientY;
+        return Math.atan2(dy, dx);
+    };
+    
+    // 触摸开始事件
+    const onTouchStart = (event) => {
+        event.preventDefault();
+        
+        if (event.touches.length === 1) {
+            // 单指触摸 - 旋转
+            this.state = this.ROTATE;
+            this.mouseOld.set(event.touches[0].clientX, event.touches[0].clientY);
+            this.isMultiTouch = false;
+        } else if (event.touches.length === 2) {
+            // 双指触摸 - 缩放和旋转
+            this.state = this.DOLLY;
+            this.touchStartDistance = getDistance(event.touches[0], event.touches[1]);
+            this.touchStartAngle = getAngle(event.touches[0], event.touches[1]);
+            this.touchStartPan.set(
+                (event.touches[0].clientX + event.touches[1].clientX) / 2,
+                (event.touches[0].clientY + event.touches[1].clientY) / 2
+            );
+            this.isMultiTouch = true;
+        }
+    };
+    
+    // 触摸移动事件
+    const onTouchMove = (event) => {
+        event.preventDefault();
+        
+        if (this.state === -1) return;
+        
+        if (event.touches.length === 1 && !this.isMultiTouch) {
+            // 单指触摸 - 旋转
+            this.mouse.set(event.touches[0].clientX, event.touches[0].clientY);
+            const deltaX = this.mouse.x - this.mouseOld.x;
+            const deltaY = this.mouse.y - this.mouseOld.y;
+            
+            // 旋转控制
+            this.sphericalDelta.theta -= 2 * Math.PI * deltaX / this.domElement.clientWidth * this.rotateSpeed;
+            this.sphericalDelta.phi -= 2 * Math.PI * deltaY / this.domElement.clientHeight * this.rotateSpeed;
+            
+            this.mouseOld.copy(this.mouse);
+        } else if (event.touches.length === 2) {
+            // 双指触摸 - 缩放和旋转
+            const currentDistance = getDistance(event.touches[0], event.touches[1]);
+            const currentAngle = getAngle(event.touches[0], event.touches[1]);
+            
+            // 计算缩放因子
+            const scale = currentDistance / this.touchStartDistance;
+            this.scale *= Math.pow(scale, this.zoomSpeed);
+            
+            // 计算旋转角度变化
+            const angleDelta = currentAngle - this.touchStartAngle;
+            this.sphericalDelta.theta -= angleDelta * this.rotateSpeed;
+            
+            // 计算平移
+            this.touchCurrentPan.set(
+                (event.touches[0].clientX + event.touches[1].clientX) / 2,
+                (event.touches[0].clientY + event.touches[1].clientY) / 2
+            );
+            
+            const panDeltaX = this.touchCurrentPan.x - this.touchStartPan.x;
+            const panDeltaY = this.touchCurrentPan.y - this.touchStartPan.y;
+            
+            // 平移控制
+            const panLeft = -panDeltaX * this.panSpeed * 0.01;
+            const panUp = panDeltaY * this.panSpeed * 0.01;
+            
+            const v = new THREE.Vector3().subVectors(this.camera.position, this.target);
+            const targetDistance = v.length();
+            const aspect = this.camera.aspect;
+            
+            this.panOffset.x += panLeft * v.x * (1 / aspect);
+            this.panOffset.z += panUp * v.z;
+            
+            // 更新起始状态
+            this.touchStartDistance = currentDistance;
+            this.touchStartAngle = currentAngle;
+            this.touchStartPan.copy(this.touchCurrentPan);
+        }
+        
+        this.update();
+    };
+    
+    // 触摸结束事件
+    const onTouchEnd = (event) => {
+        this.state = -1;
+        this.isMultiTouch = false;
+    };
+    
     // 事件监听
     this.domElement.addEventListener('contextmenu', onContextMenu);
     this.domElement.addEventListener('mousedown', onMouseDown);
@@ -124,6 +232,12 @@ THREE.OrbitControls = function(camera, domElement) {
     this.domElement.addEventListener('mousemove', onMouseMove);
     this.domElement.addEventListener('mouseup', onMouseUp);
     this.domElement.addEventListener('mouseleave', onMouseUp);
+    
+    // 添加触摸事件监听
+    this.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
+    this.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
+    this.domElement.addEventListener('touchend', onTouchEnd);
+    this.domElement.addEventListener('touchcancel', onTouchEnd);
     
     this.update = function() {
         // 应用旋转

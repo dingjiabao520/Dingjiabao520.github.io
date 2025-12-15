@@ -1192,7 +1192,7 @@ function loadTeachingBuildingModel() {
                     console.log('文科教学楼分块加载并组合完成');
                     console.log('模型已添加到场景，位置:', buildingGroup.position, '缩放:', buildingGroup.scale);
                 }
-            },
+            }
             // 加载进度回调
             function(xhr) {
                 console.log(`分块加载进度: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);

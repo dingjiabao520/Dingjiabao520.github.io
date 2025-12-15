@@ -18,12 +18,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- 加载动画 -->
+    <!-- 全局加载动画 -->
     <div class="loading" id="loading">
         <div class="spinner">
             <div class="spinner-center"></div>
         </div>
         <div class="loading-text">智慧校园系统加载中...</div>
+    </div>
+    
+    <!-- 模型加载进度动画 -->
+    <div class="model-loading" id="modelLoading">
+        <div class="model-loading-container">
+            <div class="model-loading-title">3D模型加载中...</div>
+            <div class="model-progress-bar">
+                <div class="model-progress-fill" id="modelProgressFill"></div>
+            </div>
+            <div class="model-progress-text" id="modelProgressText">0%</div>
+        </div>
     </div>
     
     <div class="main-wrapper">

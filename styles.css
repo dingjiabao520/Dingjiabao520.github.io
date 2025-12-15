@@ -243,7 +243,113 @@ body {
         crtNoise 0.15s infinite linear;
 }
 
+/* 模型加载进度动画样式 */
+.model-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 10, 21, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 1s ease, visibility 1s ease;
+}
 
+.model-loading-container {
+    width: 400px;
+    max-width: 90%;
+    padding: 30px;
+    background: rgba(10, 25, 47, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 
+        0 0 80px rgba(0, 255, 255, 0.5),
+        0 0 160px rgba(0, 128, 255, 0.4),
+        0 0 240px rgba(0, 64, 255, 0.3),
+        0 3px 30px rgba(0, 0, 0, 0.8),
+        inset 0 2px 8px rgba(255, 255, 255, 0.15),
+        inset 0 -2px 8px rgba(0, 255, 255, 0.2);
+    text-align: center;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+.model-loading-title {
+    color: #00ffff;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.4);
+    letter-spacing: 1px;
+}
+
+.model-progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(30, 50, 80, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    box-shadow: 
+        inset 0 1px 3px rgba(0, 0, 0, 0.5),
+        0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.model-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 255, 0.8), 
+        rgba(0, 128, 255, 0.8), 
+        rgba(0, 255, 255, 0.8));
+    border-radius: 5px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6),
+                0 0 30px rgba(0, 128, 255, 0.4);
+    animation: progressGlow 2s ease-in-out infinite alternate;
+    background-size: 200% 100%;
+    animation: progressGlow 2s ease-in-out infinite alternate, 
+               progressSlide 3s linear infinite;
+}
+
+.model-progress-text {
+    color: #7dd3ff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(125, 211, 255, 0.6);
+    font-family: 'Courier New', monospace;
+}
+
+/* 模型加载完成后隐藏动画 */
+.model-loading.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* 进度条动画 */
+@keyframes progressGlow {
+    0% {
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.6),
+                    0 0 30px rgba(0, 128, 255, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.8),
+                    0 0 50px rgba(0, 128, 255, 0.6);
+    }
+}
+
+@keyframes progressSlide {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 200% 0%;
+    }
+}
 
 .header-left {
     display: flex;

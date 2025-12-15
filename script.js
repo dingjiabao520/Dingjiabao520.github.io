@@ -891,6 +891,24 @@ function loadTeachingBuildingModel() {
     const loader = new window.THREE.GLTFLoader();
     loader.setDRACOLoader(dracoLoader); // 关联DRACOLoader
     
+    // 获取模型加载进度元素
+    const modelLoading = document.getElementById('modelLoading');
+    const modelProgressFill = document.getElementById('modelProgressFill');
+    const modelProgressText = document.getElementById('modelProgressText');
+    
+    // 总加载进度
+    let totalProgress = 0;
+    let currentChunkProgress = 0;
+    let loadedChunks = 0;
+    
+    // 更新进度显示
+    function updateProgress() {
+        totalProgress = ((loadedChunks - 1 + currentChunkProgress / 100) / modelPaths.length) * 100;
+        const progress = Math.min(Math.round(totalProgress), 99); // 保持99%直到所有分块加载完成
+        modelProgressFill.style.width = progress + '%';
+        modelProgressText.textContent = progress + '%';
+    }
+    
     // 模型文件路径数组 - 所有建筑分块
     const modelPaths = [
         './gltf-models/teaching-building.gltf',
@@ -914,9 +932,6 @@ function loadTeachingBuildingModel() {
     const buildingGroup = new window.THREE.Group();
     buildingGroup.name = '文科教学楼';
     
-    // 已加载分块计数器
-    let loadedChunks = 0;
-    
     // 优化：创建材质缓存，重用相同材质
     const materialCache = {};
     
@@ -926,6 +941,9 @@ function loadTeachingBuildingModel() {
     // 所有分块加载完成后的处理函数
     function handleAllChunksLoaded() {
         console.warn('部分分块加载失败，仍尝试组合建筑 (成功: ' + (loadedChunks - failedChunks) + '/' + modelPaths.length + ')');
+        // 更新进度为100%
+        modelProgressFill.style.width = '100%';
+        modelProgressText.textContent = '100%';
         // 计算整个建筑的边界框（原始大小）
         const box = new window.THREE.Box3().setFromObject(buildingGroup);
         const size = box.getSize(new window.THREE.Vector3());
@@ -1026,6 +1044,15 @@ function loadTeachingBuildingModel() {
         
         console.log('文科教学楼分块加载并组合完成');
         console.log('模型已添加到场景，位置:', buildingGroup.position, '缩放:', buildingGroup.scale);
+        
+        // 延迟隐藏加载进度动画
+        setTimeout(() => {
+            modelLoading.classList.add('fade-out');
+            // 延迟后完全隐藏
+            setTimeout(() => {
+                modelLoading.style.display = 'none';
+            }, 1200);
+        }, 500);
     }
     
     // 加载所有分块
@@ -1037,6 +1064,8 @@ function loadTeachingBuildingModel() {
             // 加载成功回调
             function(gltf) {
                 loadedChunks++;
+                currentChunkProgress = 100;
+                updateProgress();
                 console.log('分块加载成功 (' + loadedChunks + '/' + modelPaths.length + ')');
                 
                 const chunk = gltf.scene;
@@ -1090,6 +1119,8 @@ function loadTeachingBuildingModel() {
             function(xhr) {
                 if (xhr.lengthComputable) {
                     const percentComplete = xhr.loaded / xhr.total * 100;
+                    currentChunkProgress = percentComplete;
+                    updateProgress();
                     console.log('分块 ' + (index + 1) + ' 加载进度: ' + Math.round(percentComplete) + '%');
                 }
             },
@@ -1099,6 +1130,8 @@ function loadTeachingBuildingModel() {
                 // 即使某个分块加载失败，也要继续加载其他分块，避免整个模型无法显示
                 loadedChunks++;
                 failedChunks++;
+                currentChunkProgress = 100;
+                updateProgress();
                 // 如果所有分块都已尝试加载（无论成功失败），仍然尝试组合建筑
                 if (loadedChunks === modelPaths.length) {
                     handleAllChunksLoaded();

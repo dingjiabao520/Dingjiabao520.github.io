@@ -1,0 +1,5 @@
+F:\智慧校园工作区\代码\1\obj\Debug\net10.0\TestModelImport.csproj.AssemblyReference.cache
+F:\智慧校园工作区\代码\1\obj\Debug\net10.0\TestModelImport.GeneratedMSBuildEditorConfig.editorconfig
+F:\智慧校园工作区\代码\1\obj\Debug\net10.0\TestModelImport.AssemblyInfoInputs.cache
+F:\智慧校园工作区\代码\1\obj\Debug\net10.0\TestModelImport.AssemblyInfo.cs
+F:\智慧校园工作区\代码\1\obj\Debug\net10.0\TestModelImport.csproj.CoreCompileInputs.cache

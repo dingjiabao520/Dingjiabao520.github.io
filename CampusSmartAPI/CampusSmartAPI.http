@@ -1,0 +1,6 @@
+@CampusSmartAPI_HostAddress = http://localhost:5213
+
+GET {{CampusSmartAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

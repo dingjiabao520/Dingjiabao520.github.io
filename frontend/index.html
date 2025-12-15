@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧校园</title>
+    <!-- 完全使用传统脚本加载，避免ES module复杂性 -->
+    <script src="three.min.js"></script>
+    <!-- 使用本地DRACOLoader -->
+    <script src="draco_decoder.js"></script>
+    <script src="DRACOLoader.js"></script>
+    <!-- 使用本地GLTFLoader -->
+    <script src="GLTFLoader.js"></script>
+    <!-- 使用本地Chart.js -->
+    <script src="chart.min.js"></script>
+    <!-- 使用本地OrbitControls实现，解决缩小后放大视角拖动变形问题 -->
+    <script src="orbit-controls.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loading" id="loading">
+        <div class="spinner">
+            <div class="spinner-center"></div>
+        </div>
+        <div class="loading-text">智慧校园系统加载中...</div>
+    </div>
+    
+    <div class="main-wrapper">
+        <!-- 顶部标题栏 -->
+        <div class="top-header">
+            
+            <!-- 左侧天气和时间信息 -->
+            <div class="header-left-info">
+                <div class="info-badge" id="weather-mode">晴天</div>
+                <div class="info-time" id="update-time">
+                    <span id="time-display">--:--:--</span>
+                </div>
+            </div>
+            
+            <!-- 中间标题 -->
+            <div class="header-title">
+                <div class="title-main">智慧校园管理系统</div>
+            </div>
+            
+            <!-- 右侧夜间模式切换 -->
+            <div class="header-right-info">
+                <label class="day-night-toggle">
+                    <input type="checkbox" id="dayNightToggle" class="toggle-input">
+                    <span class="toggle-btn">
+                        <span class="toggle-icon"></span>
+                        <span class="toggle-text"></span>
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- 两侧渐变遮罩 -->
+        <div class="side-gradient left"></div>
+        <div class="side-gradient right"></div>
+        
+
+        
+        <!-- 主容器 -->
+        <div class="container">
+            <!-- 中间3D展示区域 -->
+            <div class="center-area">
+                <div id="canvas-container"></div>
+                <!-- 粒子效果已移除 -->
+            </div>
+            
+            <!-- HUD叠加 -->
+            <div class="hud-layer">
+                <!-- 模型显示控制按钮 -->
+                <div class="model-control-buttons">
+                    <button class="control-btn active" data-display="all">显示全部</button>
+                    <button class="control-btn" data-display="beams">显示梁</button>
+                </div>
+                
+                <!-- 左侧面板 - 基础总览 -->
+                <div class="hud-left">
+                    <div class="hud-card">
+                        <div class="hud-title">基地总览</div>
+                        <div class="hud-metrics">
+                            <div class="hud-metric-item">
+                                <div class="hud-metric-icon">🌡️</div>
+                                <div class="hud-metric-text">
+                                    <div class="hud-metric-value" id="hud-temp">23.5°C</div>
+                                    <div class="hud-metric-label">气温</div>
+                                </div>
+                            </div>
+                            <div class="hud-metric-item">
+                                <div class="hud-metric-icon">💨</div>
+                                <div class="hud-metric-text">
+                                    <div class="hud-metric-value" id="hud-wind">3 级</div>
+                                    <div class="hud-metric-label">风力</div>
+                                </div>
+                            </div>
+                            <div class="hud-metric-item">
+                                <div class="hud-metric-icon">💧</div>
+                                <div class="hud-metric-text">
+                                    <div class="hud-metric-value" id="hud-humidity">65%</div>
+                                    <div class="hud-metric-label">湿度</div>
+                                </div>
+                            </div>
+                            <div class="hud-metric-item">
+                                <div class="hud-metric-icon">🌫️</div>
+                                <div class="hud-metric-text">
+                                    <div class="hud-metric-value" id="hud-air-quality">优</div>
+                                    <div class="hud-metric-label">空气质量</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hud-badges" style="margin-top: 10px;">
+                            <div class="hud-badge">空气质量优</div>
+                            <div class="hud-badge">环境稳定</div>
+                            <div class="hud-badge">监测正常</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 风向信息 -->
+                    <div class="hud-card wind-direction">
+                        <div class="hud-title">风向信息</div>
+                        <div class="wind-metrics">
+                            <div class="wind-metric-item">
+                                <div class="wind-metric-label">当前风向</div>
+                                <div class="wind-metric-value" id="wind-direction">--</div>
+                                <div class="wind-metric-desc" id="wind-direction-desc">--</div>
+                            </div>
+                            <div class="wind-direction-indicator">
+                                <div class="wind-rose">
+                                    <div class="wind-rose-center" id="wind-rose-arrow"></div>
+                                    <div class="wind-rose-labels">
+                                        <span>N</span>
+                                        <span>E</span>
+                                        <span>S</span>
+                                        <span>W</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 风向变化趋势 -->
+                    <div class="hud-card">
+                        <div class="hud-title">风向变化趋势</div>
+                        <div class="hud-chart" style="height: 120px;">
+                            <canvas id="wind-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧面板 - 能耗与环境 -->
+                <div class="hud-right">
+                    <!-- 校园周边环境 -->
+                    <div class="hud-card">
+                        <div class="hud-title">校园周边环境</div>
+                        <div class="energy-bar">
+                            <div class="energy-bar-label"><span>空气质量</span><span id="air-quality">优</span></div>
+                            <div class="energy-bar-track"><div class="energy-bar-fill" id="air-quality-bar" style="width:85%;"></div></div>
+                        </div>
+                        <div class="energy-bar">
+                            <div class="energy-bar-label"><span>PM2.5</span><span id="pm25">23</span></div>
+                            <div class="energy-bar-track"><div class="energy-bar-fill" id="pm25-bar" style="width:23%;"></div></div>
+                        </div>
+                        <div class="energy-bar">
+                            <div class="energy-bar-label"><span>温度</span><span id="ambient-temp">23.5°C</span></div>
+                            <div class="energy-bar-track"><div class="energy-bar-fill" id="temp-bar" style="width:47%;"></div></div>
+                        </div>
+                        <div class="energy-bar">
+                            <div class="energy-bar-label"><span>湿度</span><span id="ambient-humidity">65%</span></div>
+                            <div class="energy-bar-track"><div class="energy-bar-fill" id="humidity-bar" style="width:65%;"></div></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 校园周边交通 -->
+                    <div class="hud-card">
+                        <div class="hud-title">校园周边交通状况</div>
+                        <div class="hud-chart" style="height: 160px;">
+                            <canvas id="traffic-bar-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 区域环境监测 -->
+                    <div class="hud-card">
+                        <div class="hud-title">区域环境监测</div>
+                        <div class="hud-chart" style="height: 160px;">
+                            <canvas id="env-chart"></canvas>
+                        </div>
+                        <div class="env-monitoring">
+                            <div class="env-card">
+                                <div>温度</div>
+                                <div class="env-card-value" id="env-temp">23.5°C</div>
+                            </div>
+                            <div class="env-card">
+                                <div>风力</div>
+                                <div class="env-card-value" id="env-wind">3 级</div>
+                            </div>
+                            <div class="env-card">
+                                <div>湿度</div>
+                                <div class="env-card-value" id="env-hum">65%</div>
+                            </div>
+                            <div class="env-card">
+                                <div>空气</div>
+                                <div class="env-card-value" id="env-air">优</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

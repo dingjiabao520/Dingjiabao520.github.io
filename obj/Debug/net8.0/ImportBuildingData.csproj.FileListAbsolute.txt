@@ -1,0 +1,5 @@
+F:\智慧校园工作区\代码\1\obj\Debug\net8.0\ImportBuildingData.csproj.AssemblyReference.cache
+F:\智慧校园工作区\代码\1\obj\Debug\net8.0\ImportBuildingData.GeneratedMSBuildEditorConfig.editorconfig
+F:\智慧校园工作区\代码\1\obj\Debug\net8.0\ImportBuildingData.AssemblyInfoInputs.cache
+F:\智慧校园工作区\代码\1\obj\Debug\net8.0\ImportBuildingData.AssemblyInfo.cs
+F:\智慧校园工作区\代码\1\obj\Debug\net8.0\ImportBuildingData.csproj.CoreCompileInputs.cache

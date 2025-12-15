@@ -152,20 +152,27 @@ function initThreeJS() {
     // 添加轨道控制，移动端优化灵敏度
     controls = new window.THREE.OrbitControls(camera, renderer.domElement);
     if (isMobile) {
-        // 优化移动端触摸灵敏度
-        controls.rotateSpeed = 0.6;
-        controls.zoomSpeed = 0.3;
-        controls.panSpeed = 0.4;
+        // 优化移动端触摸灵敏度 - 更适合手机操作
+        controls.rotateSpeed = 0.4; // 降低旋转速度，更平滑
+        controls.zoomSpeed = 0.2; // 降低缩放速度，更精确
+        controls.panSpeed = 0.3; // 降低平移速度
         // 移动端启用触摸控制和阻尼效果
         controls.enableDamping = true;
-        controls.dampingFactor = 0.15;
+        controls.dampingFactor = 0.2; // 增加阻尼系数，更稳定
         // 优化移动端触摸体验
-        controls.minDistance = 20;
-        controls.maxDistance = 150;
+        controls.minDistance = 15;
+        controls.maxDistance = 100;
+        // 增加旋转范围限制，防止过度旋转
+        controls.minPolarAngle = Math.PI / 6; // 限制垂直旋转下限
+        controls.maxPolarAngle = Math.PI / 2.2; // 限制垂直旋转上限
     } else {
-        // 桌面端也启用阻尼效果，提供更平滑的体验
+        // 调整桌面端灵敏度，降低旋转速度
+        controls.rotateSpeed = 0.2; // 降低旋转速度，让操作更沉稳
+        controls.zoomSpeed = 0.8; // 保持适当的缩放速度
+        controls.panSpeed = 0.8; // 保持适当的平移速度
+        // 桌面端启用阻尼效果，提供更平滑的体验
         controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
+        controls.dampingFactor = 0.05;
     }
     
     // 添加灯光
@@ -1693,25 +1700,36 @@ function onWindowResize() {
     renderer.setSize(width, height);
     renderer.setPixelRatio(pixelRatio);
     
-    // 直接设置canvas元素的样式尺寸为100%，确保它填充整个容器
+    // 确保canvas元素和容器尺寸正确
     const canvas = renderer.domElement;
+    const canvasContainer = document.getElementById('canvas-container');
+    
+    // 只设置一次canvas样式
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     
-    // 确保canvas容器尺寸正确
-    const canvasContainer = document.getElementById('canvas-container');
+    // 设置容器样式
     canvasContainer.style.width = '100%';
     canvasContainer.style.height = '100%';
     
-    // 处理极端宽高比，确保模型始终可见
-    if (width / height > 2.5 || height / width > 2.5) {
+    // 优化相机位置调整逻辑，确保在各种屏幕尺寸下模型显示比例正确
+    const aspectRatio = width / height;
+    
+    // 更精细的宽高比处理
+    if (aspectRatio > 2 || aspectRatio < 0.5) {
         // 极端宽高比时调整相机位置
-        const isWideScreen = width > height;
-        const factor = isWideScreen ? height / width : width / height;
-        
-        // 根据宽高比调整相机距离
+        const isWideScreen = aspectRatio > 1;
         const currentDistance = camera.position.distanceTo(controls.target);
-        const targetDistance = Math.min(80, Math.max(30, currentDistance * (0.8 + factor * 0.2)));
+        
+        // 根据宽高比计算目标距离，确保模型始终可见
+        let targetDistance;
+        if (isWideScreen) {
+            // 宽屏：根据宽高比调整距离，越宽越近
+            targetDistance = Math.min(80, Math.max(25, currentDistance * (0.7 + 0.3 / aspectRatio)));
+        } else {
+            // 竖屏：根据宽高比调整距离，越竖越远
+            targetDistance = Math.min(100, Math.max(30, currentDistance * (0.8 + 0.4 * (1 - aspectRatio))));
+        }
         
         // 平滑调整相机位置
         const direction = new THREE.Vector3()
@@ -1720,8 +1738,6 @@ function onWindowResize() {
             .multiplyScalar(targetDistance);
         camera.position.copy(controls.target).add(direction);
     }
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
     
     // 更新图表
     if (window.envChart) window.envChart.resize();
@@ -2819,7 +2835,7 @@ function toggleDayNight() {
                 scene.userData.sunLight.intensity = 0.0; // 关闭太阳光源
             }
             if (scene.userData.moonLight) {
-                scene.userData.moonLight.intensity = 0.1; // 打开月亮光源
+                scene.userData.moonLight.intensity = 0.15; // 打开月亮光源
             }
             
             // 调整天空为夜间模式
@@ -2846,6 +2862,9 @@ function toggleDayNight() {
                 sky.material.uniforms.isNight.value = false;
             }
         }
+        
+        // 切换页面整体样式
+        document.body.classList.toggle('night-mode', isNightMode);
     }
 }
 
@@ -2880,7 +2899,7 @@ function initControls() {
                 scene.userData.sunLight.intensity = 0.0;
             }
             if (scene && scene.userData.moonLight) {
-                scene.userData.moonLight.intensity = 0.1;
+                scene.userData.moonLight.intensity = 0.15;
             }
             
             // 初始设置夜间天空 - 检查scene是否存在
@@ -2907,6 +2926,9 @@ function initControls() {
                 sky.material.uniforms.isNight.value = false;
             }
         }
+        
+        // 初始化页面整体样式
+        document.body.classList.toggle('night-mode', isNightMode);
     }
     
     // 不需要为toggle-btn添加点击事件，因为label元素会自动触发input的状态变化

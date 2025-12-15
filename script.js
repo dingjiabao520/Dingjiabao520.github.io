@@ -1010,7 +1010,7 @@ function loadTeachingBuildingModel() {
                     // 存储建筑引用
                     scene.userData.teachingBuilding = buildingGroup;
                     
-                    // 从后端获取模型数据并关联
+                    // 从后端获取模型数据并关联 - 仅在本地开发时尝试，GitHub Pages上会失败
                     console.log('开始从后端获取完整模型数据...');
                     fetch('http://localhost:5213/api/Model/building-data')
                         .then(response => response.json())
@@ -1065,7 +1065,8 @@ function loadTeachingBuildingModel() {
                             console.log('完整模型数据已关联到3D模型');
                         })
                         .catch(error => {
-                            console.error('获取模型数据失败:', error);
+                            console.warn('获取模型数据失败(正常，GitHub Pages上无法访问本地后端):', error.message);
+                            // 继续执行，不中断模型加载
                         });
                     
                     console.log('文科教学楼分块加载并组合完成');
@@ -1076,14 +1077,22 @@ function loadTeachingBuildingModel() {
             function(xhr) {
                 console.log(`分块加载进度: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
             },
-            // 加载错误回调
+            // 加载错误回调 - 更详细的错误信息
             function(error) {
-                console.error('分块加载失败:', error);
+                console.error(`分块加载失败 (${modelPath}):`, error.message);
+                console.error('完整错误信息:', error);
                 // 继续加载其他分块，不中断整个过程
                 loadedChunks++;
             }
         );
     });
+    
+    // 添加模型加载超时检查
+    setTimeout(() => {
+        if (loadedChunks < modelPaths.length) {
+            console.warn(`模型加载超时警告: 已加载 ${loadedChunks}/${modelPaths.length} 个分块，仍有 ${modelPaths.length - loadedChunks} 个分块未加载完成`);
+        }
+    }, 30000); // 30秒后检查
 }
 
 function createRoads() {

@@ -247,14 +247,14 @@ body {
 .model-loading {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100vw;
+    left: 20vw;
+    right: 20vw;
     height: 100vh;
     background: rgba(5, 10, 21, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 150;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: opacity 1s ease, visibility 1s ease;

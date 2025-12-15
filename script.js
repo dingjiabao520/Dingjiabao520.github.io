@@ -14,46 +14,47 @@ window.addEventListener('DOMContentLoaded', () => {
         // 延迟后完全隐藏加载元素（与CSS过渡时间匹配）
         setTimeout(() => {
             loading.style.display = 'none';
+            
+            // 全局加载动画完全隐藏后，才初始化Three.js场景和加载模型
+            // 初始化图表
+            initEnvChart();
+            
+            // 初始化数据更新
+            initDataUpdates();
+            
+            // 初始化控制按钮
+            initControls();
+            
+            // 初始化风向显示
+            updateWindDisplay();
+            
+            // 更新时间显示
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // 初始化模型控制按钮
+            initModelControls();
+            
+            // 直接初始化Three.js场景，因为已经使用传统脚本加载
+            console.log('开始初始化Three.js场景...');
+            
+            // 检查Three.js和GLTFLoader是否可用
+            if (typeof THREE !== 'undefined') {
+                console.log('Three.js已加载');
+                if (typeof THREE.GLTFLoader !== 'undefined') {
+                    console.log('GLTFLoader已加载');
+                    initThreeJS();
+                    console.log('Three.js场景初始化完成');
+                } else {
+                    console.error('GLTFLoader未加载');
+                    // 即使GLTFLoader未加载，也初始化基本场景
+                    initThreeJS();
+                }
+            } else {
+                console.error('Three.js未加载');
+            }
         }, 1200);
     }, 1500);
-    
-    // 初始化图表
-    initEnvChart();
-    
-    // 初始化数据更新
-    initDataUpdates();
-    
-    // 初始化控制按钮
-    initControls();
-    
-    // 初始化风向显示
-    updateWindDisplay();
-    
-    // 更新时间显示
-    updateTime();
-    setInterval(updateTime, 1000);
-    
-    // 初始化模型控制按钮
-    initModelControls();
-    
-    // 直接初始化Three.js场景，因为已经使用传统脚本加载
-    console.log('开始初始化Three.js场景...');
-    
-    // 检查Three.js和GLTFLoader是否可用
-    if (typeof THREE !== 'undefined') {
-        console.log('Three.js已加载');
-        if (typeof THREE.GLTFLoader !== 'undefined') {
-            console.log('GLTFLoader已加载');
-            initThreeJS();
-            console.log('Three.js场景初始化完成');
-        } else {
-            console.error('GLTFLoader未加载');
-            // 即使GLTFLoader未加载，也初始化基本场景
-            initThreeJS();
-        }
-    } else {
-        console.error('Three.js未加载');
-    }
 });
 
 // Three.js相关变量

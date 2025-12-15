@@ -889,21 +889,21 @@ function loadTeachingBuildingModel() {
     
     // 模型文件路径数组 - 所有建筑分块
     const modelPaths = [
-        '../gltf-models/文科教学楼.gltf',
-        '../gltf-models/文科教学楼_1.gltf',
-        '../gltf-models/文科教学楼_2.gltf',
-        '../gltf-models/文科教学楼_3.gltf',
-        '../gltf-models/文科教学楼_4.gltf',
-        '../gltf-models/文科教学楼_5.gltf',
-        '../gltf-models/文科教学楼_6.gltf',
-        '../gltf-models/文科教学楼_7.gltf',
-        '../gltf-models/文科教学楼_8.gltf',
-        '../gltf-models/文科教学楼_9.gltf',
-        '../gltf-models/文科教学楼_10.gltf',
-        '../gltf-models/文科教学楼_11.gltf',
-        '../gltf-models/文科教学楼_12.gltf',
-        '../gltf-models/文科教学楼_13.gltf',
-        '../gltf-models/文科教学楼_14.gltf'
+        '../gltf-models/teaching-building.gltf',
+        '../gltf-models/teaching-building_1.gltf',
+        '../gltf-models/teaching-building_2.gltf',
+        '../gltf-models/teaching-building_3.gltf',
+        '../gltf-models/teaching-building_4.gltf',
+        '../gltf-models/teaching-building_5.gltf',
+        '../gltf-models/teaching-building_6.gltf',
+        '../gltf-models/teaching-building_7.gltf',
+        '../gltf-models/teaching-building_8.gltf',
+        '../gltf-models/teaching-building_9.gltf',
+        '../gltf-models/teaching-building_10.gltf',
+        '../gltf-models/teaching-building_11.gltf',
+        '../gltf-models/teaching-building_12.gltf',
+        '../gltf-models/teaching-building_13.gltf',
+        '../gltf-models/teaching-building_14.gltf'
     ];
     
     // 创建主建筑组，用于组合所有分块

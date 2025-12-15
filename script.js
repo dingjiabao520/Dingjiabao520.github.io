@@ -873,6 +873,7 @@ function addDoor(group, width, height, depth, offsetX = 0, offsetY = 0, offsetZ 
 }
 
 // 加载文科教学楼GLTF模型 - 分块加载并组合
+// 加载文科教学楼GLTF模型 - 分块加载并组合
 function loadTeachingBuildingModel() {
     console.log('开始加载文科教学楼GLTF模型...');
     
@@ -924,7 +925,7 @@ function loadTeachingBuildingModel() {
     
     // 所有分块加载完成后的处理函数
     function handleAllChunksLoaded() {
-        console.warn(`部分分块加载失败，仍尝试组合建筑 (成功: ${loadedChunks - failedChunks}/${modelPaths.length})`);
+        console.warn('部分分块加载失败，仍尝试组合建筑 (成功: ' + (loadedChunks - failedChunks) + '/' + modelPaths.length + ')');
         // 计算整个建筑的边界框（原始大小）
         const box = new window.THREE.Box3().setFromObject(buildingGroup);
         const size = box.getSize(new window.THREE.Vector3());
@@ -949,7 +950,7 @@ function loadTeachingBuildingModel() {
         
         // 将模型向上偏移0.7个单位（根据需求）
         buildingGroup.position.y += 1.4;
-        console.log('建筑位置调整:', { initialY, finalY: buildingGroup.position.y, offset: 0.7 });
+        console.log('建筑位置调整:', { initialY: initialY, finalY: buildingGroup.position.y, offset: 0.7 });
         console.log('建筑最终位置:', buildingGroup.position);
         
         // 确保模型在相机视野范围内
@@ -965,15 +966,19 @@ function loadTeachingBuildingModel() {
         // 从后端获取模型数据并关联 - 仅在本地开发时尝试，GitHub Pages上会失败
         console.log('开始从后端获取完整模型数据...');
         fetch('http://localhost:5213/api/Model/building-data')
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
                 console.log('后端模型数据获取成功，开始关联到3D模型...');
+                var modelPartsLength = data.modelParts ? data.modelParts.length : 0;
+                var modelDatasLength = data.modelDatas ? data.modelDatas.length : 0;
                 console.log('模型数据基本信息:', {
                     modelName: data.modelName,
                     version: data.version,
                     createdDate: data.createdDate,
-                    partCount: data.modelParts?.length || 0,
-                    dataCount: data.modelDatas?.length || 0
+                    partCount: modelPartsLength,
+                    dataCount: modelDatasLength
                 });
                 
                 // 将完整模型数据存储到模型对象中
@@ -988,21 +993,17 @@ function loadTeachingBuildingModel() {
                     buildingGroup.userData.types = {};
                     
                     // 遍历所有模型数据，按类型存储
-                    data.modelDatas.forEach(item => {
+                    data.modelDatas.forEach(function(item) {
                         const dataKey = item.dataKey;
                         const externalId = item.externalId;
                         
                         // 根据DataType存储数据到相应的对象中
-                        switch (item.dataType) {
-                            case 'ExternalId':
-                                buildingGroup.userData.externalIds[dataKey] = externalId;
-                                break;
-                            case 'Category':
-                                buildingGroup.userData.categories[dataKey] = externalId;
-                                break;
-                            case 'Type':
-                                buildingGroup.userData.types[dataKey] = externalId;
-                                break;
+                        if (item.dataType === 'ExternalId') {
+                            buildingGroup.userData.externalIds[dataKey] = externalId;
+                        } else if (item.dataType === 'Category') {
+                            buildingGroup.userData.categories[dataKey] = externalId;
+                        } else if (item.dataType === 'Type') {
+                            buildingGroup.userData.types[dataKey] = externalId;
                         }
                     });
                     
@@ -1018,7 +1019,7 @@ function loadTeachingBuildingModel() {
                 
                 console.log('完整模型数据已关联到3D模型');
             })
-            .catch(error => {
+            .catch(function(error) {
                 console.warn('从后端获取模型数据失败（仅在本地开发时可用）:', error);
                 // 不影响模型显示，继续执行
             });
@@ -1028,18 +1029,18 @@ function loadTeachingBuildingModel() {
     }
     
     // 加载所有分块
-    modelPaths.forEach((modelPath, index) => {
-        console.log(`加载建筑分块 ${index + 1}/${modelPaths.length}: ${modelPath}`);
+    modelPaths.forEach(function(modelPath, index) {
+        console.log('加载建筑分块 ' + (index + 1) + '/' + modelPaths.length + ': ' + modelPath);
         
         loader.load(
             modelPath,
             // 加载成功回调
             function(gltf) {
                 loadedChunks++;
-                console.log(`分块加载成功 (${loadedChunks}/${modelPaths.length})`);
+                console.log('分块加载成功 (' + loadedChunks + '/' + modelPaths.length + ')');
                 
                 const chunk = gltf.scene;
-                chunk.name = `building_chunk_${index}`;
+                chunk.name = 'building_chunk_' + index;
                 
                 // 处理分块，优化材质和渲染
                 chunk.traverse(function(child) {
@@ -1077,11 +1078,11 @@ function loadTeachingBuildingModel() {
                 
                 // 将分块添加到主建筑组
                 buildingGroup.add(chunk);
-                console.log(`分块已添加到建筑组 (${loadedChunks}/${modelPaths.length})`);
+                console.log('分块已添加到建筑组 (' + loadedChunks + '/' + modelPaths.length + ')');
                 
                 // 检查是否所有分块都已加载完成
                 if (loadedChunks === modelPaths.length) {
-                    console.log(`所有建筑分块加载完成 (成功: ${loadedChunks - failedChunks}/${modelPaths.length})`);
+                    console.log('所有建筑分块加载完成 (成功: ' + (loadedChunks - failedChunks) + '/' + modelPaths.length + ')');
                     handleAllChunksLoaded();
                 }
             },
@@ -1089,122 +1090,27 @@ function loadTeachingBuildingModel() {
             function(xhr) {
                 if (xhr.lengthComputable) {
                     const percentComplete = xhr.loaded / xhr.total * 100;
-                    console.log(`分块 ${index + 1} 加载进度: ${Math.round(percentComplete)}%`);
+                    console.log('分块 ' + (index + 1) + ' 加载进度: ' + Math.round(percentComplete) + '%');
                 }
             },
             // 加载错误回调 - 关键！用于调试模型加载问题
             function(error) {
-                console.error(`分块加载失败 ${index + 1}/${modelPaths.length}: ${modelPath}`, error);
+                console.error('分块加载失败 ' + (index + 1) + '/' + modelPaths.length + ': ' + modelPath, error);
                 // 即使某个分块加载失败，也要继续加载其他分块，避免整个模型无法显示
                 loadedChunks++;
                 failedChunks++;
                 // 如果所有分块都已尝试加载（无论成功失败），仍然尝试组合建筑
                 if (loadedChunks === modelPaths.length) {
-                    console.warn(`部分分块加载失败，仍尝试组合建筑 (成功: ${loadedChunks - failedChunks}/${modelPaths.length})`);
-                    // 继续执行组合逻辑
-                    // 计算整个建筑的边界框（原始大小）
-                    const box = new window.THREE.Box3().setFromObject(buildingGroup);
-                    const size = box.getSize(new window.THREE.Vector3());
-                    console.log('建筑组合后原始大小:', size);
-                    
-                    // 计算原始中心位置
-                    const originalCenter = box.getCenter(new window.THREE.Vector3());
-                    console.log('建筑原始中心:', originalCenter);
-                    
-                    // 调整建筑大小，使其适合场景
-                    const maxSize = Math.max(size.x, size.y, size.z);
-                    const scaleFactor = 20 / maxSize; // 缩放至合适大小
-                    buildingGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                    console.log('建筑缩放因子:', scaleFactor);
-                    
-                    // 调整建筑位置，使其位于场景中央
-                    // 先将模型平移到原点，然后应用缩放，再调整到合适位置
-                    buildingGroup.position.set(-originalCenter.x * scaleFactor, -originalCenter.y * scaleFactor, -originalCenter.z * scaleFactor);
-                    
-                    // 保存初始位置用于调试
-                    const initialY = buildingGroup.position.y;
-                    
-                    // 将模型向上偏移0.7个单位（根据需求）
-                    buildingGroup.position.y += 1.4;
-                    console.log('建筑位置调整:', { initialY, finalY: buildingGroup.position.y, offset: 0.7 });
-                    console.log('建筑最终位置:', buildingGroup.position);
-                    
-                    // 确保模型在相机视野范围内
-                    console.log('相机位置:', camera.position);
-                    console.log('相机看向:', controls.target);
-                    
-                    // 所有分块加载完成，添加到场景
-                    scene.add(buildingGroup);
-                    
-                    // 存储建筑引用
-                    scene.userData.teachingBuilding = buildingGroup;
-                    
-                    // 从后端获取模型数据并关联 - 仅在本地开发时尝试，GitHub Pages上会失败
-                    console.log('开始从后端获取完整模型数据...');
-                    fetch('http://localhost:5213/api/Model/building-data')
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('后端模型数据获取成功，开始关联到3D模型...');
-                            console.log('模型数据基本信息:', {
-                                modelName: data.modelName,
-                                version: data.version,
-                                createdDate: data.createdDate,
-                                partCount: data.modelParts?.length || 0,
-                                dataCount: data.modelDatas?.length || 0
-                            });
-                            
-                            // 将完整模型数据存储到模型对象中
-                            buildingGroup.userData.modelData = data;
-                            
-                            // 存储模型数据到模型的userData中，方便后续使用
-                            buildingGroup.userData.modelDatas = {};
-                            if (data.modelDatas && data.modelDatas.length > 0) {
-                                // 初始化不同类型的数据存储
-                                buildingGroup.userData.externalIds = {};
-                                buildingGroup.userData.categories = {};
-                                buildingGroup.userData.types = {};
-                                
-                                // 遍历所有模型数据，按类型存储
-                                data.modelDatas.forEach(item => {
-                                    const dataKey = item.dataKey;
-                                    const externalId = item.externalId;
-                                    
-                                    // 根据DataType存储数据到相应的对象中
-                                    switch (item.dataType) {
-                                        case 'ExternalId':
-                                            buildingGroup.userData.externalIds[dataKey] = externalId;
-                                            break;
-                                        case 'Category':
-                                            buildingGroup.userData.categories[dataKey] = externalId;
-                                            break;
-                                        case 'Type':
-                                            buildingGroup.userData.types[dataKey] = externalId;
-                                            break;
-                                    }
-                                });
-                                
-                                // 显示各类型数据的数量
-                                console.log('已关联的数据数量:', {
-                                    externalIds: Object.keys(buildingGroup.userData.externalIds).length,
-                                    categories: Object.keys(buildingGroup.userData.categories).length,
-                                    types: Object.keys(buildingGroup.userData.types).length
-                                });
-                            } else {
-                                console.warn('模型数据为空，无法关联数据到3D模型');
-                            }
-                        })
-                        .catch(error => {
-                            console.warn('从后端获取模型数据失败（仅在本地开发时可用）:', error);
-                            // 不影响模型显示，继续执行
-                        });
+                    handleAllChunksLoaded();
                 }
             }
         );
     });
+    
     // 添加模型加载超时检查
-    setTimeout(() => {
+    setTimeout(function() {
         if (loadedChunks < modelPaths.length) {
-            console.warn(`模型加载超时警告: 已加载 ${loadedChunks}/${modelPaths.length} 个分块，仍有 ${modelPaths.length - loadedChunks} 个分块未加载完成`);
+            console.warn('模型加载超时警告: 已加载 ' + loadedChunks + '/' + modelPaths.length + ' 个分块，仍有 ' + (modelPaths.length - loadedChunks) + ' 个分块未加载完成');
         }
     }, 30000); // 30秒后检查
 }

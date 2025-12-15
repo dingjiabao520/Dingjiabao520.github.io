@@ -246,108 +246,171 @@ body {
 /* 模型加载进度动画样式 */
 .model-loading {
     position: fixed;
-    top: 0;
-    left: 20vw;
-    right: 20vw;
-    height: 100vh;
-    background: rgba(5, 10, 21, 0.95);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: auto;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 150;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     transition: opacity 1s ease, visibility 1s ease;
 }
 
 .model-loading-container {
     width: 400px;
-    max-width: 90%;
+    max-width: 90vw;
     padding: 30px;
-    background: rgba(10, 25, 47, 0.85);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 12px;
+    background: rgba(10, 25, 47, 0.95);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 16px;
     box-shadow: 
-        0 0 80px rgba(0, 255, 255, 0.5),
-        0 0 160px rgba(0, 128, 255, 0.4),
-        0 0 240px rgba(0, 64, 255, 0.3),
-        0 3px 30px rgba(0, 0, 0, 0.8),
-        inset 0 2px 8px rgba(255, 255, 255, 0.15),
-        inset 0 -2px 8px rgba(0, 255, 255, 0.2);
+        0 0 100px rgba(0, 255, 255, 0.6),
+        0 0 200px rgba(0, 128, 255, 0.5),
+        0 4px 30px rgba(0, 0, 0, 0.9),
+        inset 0 3px 10px rgba(255, 255, 255, 0.2),
+        inset 0 -3px 10px rgba(0, 255, 255, 0.3);
     text-align: center;
-    animation: glowPulse 3s ease-in-out infinite;
+    animation: glowPulse 2s ease-in-out infinite;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 .model-loading-title {
     color: #00ffff;
     font-size: 1.5rem;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     font-weight: 700;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.4);
-    letter-spacing: 1px;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.9),
+        0 0 40px rgba(0, 255, 255, 0.6);
+    letter-spacing: 1.5px;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }
 
 .model-progress-bar {
     width: 100%;
-    height: 12px;
-    background: rgba(30, 50, 80, 0.5);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 6px;
+    height: 16px;
+    background: rgba(30, 50, 80, 0.7);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     box-shadow: 
-        inset 0 1px 3px rgba(0, 0, 0, 0.5),
-        0 0 10px rgba(0, 255, 255, 0.2);
+        inset 0 2px 5px rgba(0, 0, 0, 0.6),
+        0 0 15px rgba(0, 255, 255, 0.3);
+    position: relative;
+}
+
+.model-progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 255, 255, 0.4), 
+        transparent);
+    animation: progressScan 2s linear infinite;
 }
 
 .model-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, 
-        rgba(0, 255, 255, 0.8), 
-        rgba(0, 128, 255, 0.8), 
-        rgba(0, 255, 255, 0.8));
-    border-radius: 5px;
+        rgba(0, 200, 255, 0.9), 
+        rgba(0, 150, 255, 0.9), 
+        rgba(0, 200, 255, 0.9));
+    border-radius: 7px;
     transition: width 0.3s ease;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6),
-                0 0 30px rgba(0, 128, 255, 0.4);
-    animation: progressGlow 2s ease-in-out infinite alternate;
+    box-shadow: 
+        0 0 20px rgba(0, 200, 255, 0.8),
+        0 0 40px rgba(0, 150, 255, 0.6),
+        inset 0 1px 3px rgba(255, 255, 255, 0.3);
     background-size: 200% 100%;
-    animation: progressGlow 2s ease-in-out infinite alternate, 
-               progressSlide 3s linear infinite;
+    animation: 
+        progressFillGlow 2s ease-in-out infinite alternate,
+        progressFillSlide 3s linear infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.model-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 70%);
+    background-size: 30px 30px;
+    animation: progressFillShine 1.5s linear infinite;
 }
 
 .model-progress-text {
     color: #7dd3ff;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    text-shadow: 0 0 10px rgba(125, 211, 255, 0.6);
+    text-shadow: 
+        0 0 15px rgba(125, 211, 255, 0.8),
+        0 0 30px rgba(125, 211, 255, 0.5);
     font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
 }
 
 /* 模型加载完成后隐藏动画 */
 .model-loading.fade-out {
     opacity: 0;
     visibility: hidden;
+    transform: translate(-50%, -50%) scale(0.9);
 }
 
 /* 进度条动画 */
-@keyframes progressGlow {
+@keyframes progressFillGlow {
     0% {
-        box-shadow: 0 0 15px rgba(0, 255, 255, 0.6),
-                    0 0 30px rgba(0, 128, 255, 0.4);
+        box-shadow: 
+            0 0 20px rgba(0, 200, 255, 0.8),
+            0 0 40px rgba(0, 150, 255, 0.6),
+            inset 0 1px 3px rgba(255, 255, 255, 0.3);
     }
     100% {
-        box-shadow: 0 0 25px rgba(0, 255, 255, 0.8),
-                    0 0 50px rgba(0, 128, 255, 0.6);
+        box-shadow: 
+            0 0 30px rgba(0, 200, 255, 1),
+            0 0 60px rgba(0, 150, 255, 0.8),
+            inset 0 1px 3px rgba(255, 255, 255, 0.5);
     }
 }
 
-@keyframes progressSlide {
+@keyframes progressFillSlide {
     0% {
         background-position: 0% 0%;
     }
     100% {
         background-position: 200% 0%;
+    }
+}
+
+@keyframes progressScan {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes progressFillShine {
+    0% {
+        background-position: -30px 0;
+    }
+    100% {
+        background-position: 30px 0;
     }
 }
 

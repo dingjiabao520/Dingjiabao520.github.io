@@ -1193,17 +1193,6 @@ function loadTeachingBuildingModel() {
                     console.log('模型已添加到场景，位置:', buildingGroup.position, '缩放:', buildingGroup.scale);
                 }
             }
-            // 加载进度回调
-            function(xhr) {
-                console.log(`分块加载进度: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
-            },
-            // 加载错误回调 - 更详细的错误信息
-            function(error) {
-                console.error(`分块加载失败 (${modelPath}):`, error.message);
-                console.error('完整错误信息:', error);
-                // 继续加载其他分块，不中断整个过程
-                loadedChunks++;
-            }
         );
     });
     
